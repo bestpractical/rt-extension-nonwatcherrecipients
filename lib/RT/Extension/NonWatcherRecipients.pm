@@ -127,20 +127,20 @@ sub FindRecipients {
     for my $hdr (qw(From To Cc RT-Send-Cc RT-Send-Bcc)) {
         my @new = grep { not $self->IsWatcher($_->address) } @{$addr{$hdr} || []};
         $recipients .= "   $hdr: " . $self->Format(\@new) . "\n"
-          if @new;
+            if @new;
     }
 
     if ($recipients) {
         $message = "The following people received a copy of this email "
-          . "but are not on the ticket. You may want to add them "
-            . "before replying: ${RT::WebURL}Ticket/ModifyPeople.html?id="
-              . $Ticket->id . "\n\n$recipients";
+                 . "but are not on the ticket. You may want to add them "
+                 . "before replying: ${RT::WebURL}Ticket/ModifyPeople.html?id="
+                 . $Ticket->id . "\n\n$recipients";
     }
 
     # Show From if there's a different phrase; this catches name changes and "via RT"
     my @from = grep { $_->phrase ne $creator } @{$addr{From} || []};
     $message = "   From: " . $self->Format(\@from) . ($message ? "\n\n$message" : "\n")
-      if @from;
+        if @from;
 
     if ($message) {
         $message = ("-" x 72) . "\n$message";
