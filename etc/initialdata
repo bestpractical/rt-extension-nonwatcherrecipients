@@ -7,9 +7,7 @@ RT-Attach-Message: yes
 
 <URL: {RT->Config->Get('WebURL')}Ticket/Display.html?id={$Ticket->id} >
 
-{ my $message = RT::Extension::NonWatcherRecipients->FindRecipients(Transaction => $Transaction, Ticket => $Ticket);
-  $message;
-}
+{ RT::Extension::NonWatcherRecipients->FindRecipients(Transaction => $Transaction, Ticket => $Ticket) }
 
 {$Transaction->Content()}
     TEMPLATE
