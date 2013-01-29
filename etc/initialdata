@@ -1,0 +1,17 @@
+@Templates = {
+    Queue           => 0,
+    Name            => 'NonWatcherRecipients Admin Correspondence',
+    Description     => 'Note non-ticket-watchers receiving email on correspondence',
+    Content         => <<'    TEMPLATE',
+RT-Attach-Message: yes
+X-RT-Queue: {$Ticket->QueueObj->Name}
+
+<URL: {RT->Config->Get('WebURL')}Ticket/Display.html?id={$Ticket->id} >
+
+{ my $message = RT::Extension::NonWatcherRecipients->FindRecipients(Transaction => $Transaction, Ticket => $Ticket);
+  $message;
+}
+
+{$Transaction->Content()}
+    TEMPLATE
+};
