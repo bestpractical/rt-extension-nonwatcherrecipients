@@ -143,8 +143,8 @@ sub FindRecipients {
         if @from;
 
     if ($message) {
-        $message = ("-" x 72) . "\n$message";
-        $message .= ("-" x 72);
+        my $sep  = "-" x 72;
+        $message = "$sep\n$message$sep\n";
     }
 
     return $message;
