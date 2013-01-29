@@ -8,6 +8,30 @@ our $VERSION = '0.01';
 
 RT-Extension-NonWatcherRecipients - Note when non-watchers received an email which RT redistributed to watchers
 
+=head1 DESCRIPTION
+
+Sometimes email addresses will be added to a thread attached to an RT ticket
+because someone wants someone else to know what's going on. However, if that
+person isn't added as a Watcher on the RT ticket, they'll likely miss
+subsequent correspondence on the thread as RT doesn't know about them.
+
+L<RT::Extension::NonWatcherRecipients> looks for email addresses on
+correspondence that RT doesn't know about and posts a message like this
+so you know someone may need to be added:
+
+    ------------------------------------------------------------------------
+       From: "A User" <a-user@example.com>
+
+    The following people received a copy of this email but are not on the ticket.
+    You may want to add them before replying:
+    https://YourRT.com/Ticket/ModifyPeople.html?id=12345
+
+       Cc: "Non Watcher" <non-watcher@example.com>
+    ------------------------------------------------------------------------
+
+If you want the person to see correspondence, you can click the link and add
+them. If not, you can just ignore the message.
+
 =head1 INSTALLATION
 
 =over
@@ -45,30 +69,6 @@ or add C<RT::Extension::NonWatcherRecipients> to your existing C<@Plugins> line.
 =item Restart your webserver
 
 =back
-
-=head1 DESCRIPTION
-
-Sometimes email addresses will be added to a thread attached to an RT ticket
-because someone wants someone else to know what's going on. However, if that
-person isn't added as a Watcher on the RT ticket, they'll likely miss
-subsequent correspondence on the thread as RT doesn't know about them.
-
-L<RT::Extension::NonWatcherRecipients> looks for email addresses on
-correspondence that RT doesn't know about and posts a message like this
-so you know someone may need to be added:
-
-    ------------------------------------------------------------------------
-       From: "A User" <a-user@example.com>
-
-    The following people received a copy of this email but are not on the ticket.
-    You may want to add them before replying:
-    https://YourRT.com/Ticket/ModifyPeople.html?id=12345
-
-       Cc: "Non Watcher" <non-watcher@example.com>
-    ------------------------------------------------------------------------
-
-If you want the person to see correspondence, you can click the link and add
-them. If not, you can just ignore the message.
 
 =head1 USAGE
 
