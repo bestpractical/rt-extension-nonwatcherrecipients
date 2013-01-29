@@ -6,8 +6,7 @@ our $VERSION = '0.01';
 
 =head1 NAME
 
-RT-Extension-NonWatcherRecipients - Notify when non-watchers are CC'd on
-RT email
+RT-Extension-NonWatcherRecipients - Note when non-watchers received an email which RT redistributed to watchers
 
 =head1 INSTALLATION
 
@@ -49,12 +48,12 @@ or add C<RT::Extension::NonWatcherRecipients> to your existing C<@Plugins> line.
 
 =head1 DESCRIPTION
 
-Sometimes email addresses will be added to a thread attached to an RT
-ticket because someone wants someone else to know what's going on. However,
-if that person isn't added as a Watcher on the RT ticket, they'll likely
-miss correspondence on the thread as RT doesn't know about them.
+Sometimes email addresses will be added to a thread attached to an RT ticket
+because someone wants someone else to know what's going on. However, if that
+person isn't added as a Watcher on the RT ticket, they'll likely miss
+subsequent correspondence on the thread as RT doesn't know about them.
 
-C<RT::Extension::NonWatcherRecipients> looks for email addresses on
+L<RT::Extension::NonWatcherRecipients> looks for email addresses on
 correspondence that RT doesn't know about and posts a message like this
 so you know someone may need to be added:
 
@@ -81,14 +80,14 @@ C<Admin Correspondence> template because you'll need RT privileges
 to add the user to the ticket.
 
 You can also add this to existing templates by adding the following
-call:
+to any template:
 
-    RT::Extension::NonWatcherRecipients->FindRecipients(
-        Transaction => $Transaction, Ticket => $Ticket );
+    { RT::Extension::NonWatcherRecipients->FindRecipients(
+        Transaction => $Transaction, Ticket => $Ticket ) }
 
-As described below, this method returns the message which you can insert
-in your template wherever you like. You can also look at the installed
-template for an example.
+As described below, this method returns a message which is then inserted into
+your template.  Look at the installed template for an example.  You may also
+call the method and use the returned string however you'd like.
 
 =head1 METHODS
 
