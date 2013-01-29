@@ -85,6 +85,8 @@ METHODS
 AUTHOR
     Jim Brandt <jbrandt@bestpractical.com>
 
+    Thomas Sibley <trs@bestpractical.com>
+
 BUGS
     All bugs should be reported via email to
     bug-RT-Extension-NonWatcherRecipients@rt.cpan.org

@@ -177,6 +177,8 @@ sub Format {
 
 Jim Brandt <jbrandt@bestpractical.com>
 
+Thomas Sibley <trs@bestpractical.com>
+
 =head1 BUGS
 
 All bugs should be reported via email to
