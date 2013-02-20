@@ -110,7 +110,7 @@ sub FindRecipients {
     my $Transaction = $args{Transaction};
     my $Ticket = $args{Ticket};
     my $recipients; # List of recipients
-    my $message;  # Message for template
+    my $message = ""; # Message for template
 
     unless ( $Transaction->Id and $Ticket->Id ){
         RT::Logger->error("Transaction and Ticket objects are required. "
@@ -118,7 +118,7 @@ sub FindRecipients {
                           . " and Ticket Id: " . $Ticket->Id);
     }
 
-    return unless my $att = $Transaction->Attachments->First;
+    return "" unless my $att = $Transaction->Attachments->First;
 
     my %addr = %{ $att->Addresses };
     my $creator = $Transaction->CreatorObj->RealName || '';
