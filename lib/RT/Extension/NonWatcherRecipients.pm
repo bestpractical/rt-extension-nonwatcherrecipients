@@ -125,7 +125,7 @@ sub FindRecipients {
 
     # Show any extra recipients
     for my $hdr (qw(From To Cc RT-Send-Cc RT-Send-Bcc)) {
-        my @new = grep { not $self->IsWatcher($_->address) } @{$addr{$hdr} || []};
+        my @new = grep { not $self->IsWatcher($_->address, $Ticket) } @{$addr{$hdr} || []};
         $recipients .= "   $hdr: " . $self->Format(\@new) . "\n"
             if @new;
     }
