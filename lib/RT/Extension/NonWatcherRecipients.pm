@@ -116,6 +116,7 @@ sub FindRecipients {
         RT::Logger->error("Transaction and Ticket objects are required. "
                           . "Received Transaction Id: " . $Transaction->Id
                           . " and Ticket Id: " . $Ticket->Id);
+        return "";
     }
 
     return "" unless my $att = $Transaction->Attachments->First;
