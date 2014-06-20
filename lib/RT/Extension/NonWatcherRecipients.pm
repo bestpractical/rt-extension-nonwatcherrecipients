@@ -139,7 +139,7 @@ sub FindRecipients {
     }
 
     # Show From if there's a different phrase; this catches name changes and "via RT"
-    my @from = grep { $_->phrase ne $creator } @{$addr{From} || []};
+    my @from = grep { ($_->phrase||'') ne $creator } @{$addr{From} || []};
     $message = "   From: " . $self->Format(\@from) . ($message ? "\n\n$message" : "\n")
         if @from;
 
