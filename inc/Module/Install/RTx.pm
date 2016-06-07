@@ -8,7 +8,7 @@ no warnings 'once';
 
 use Module::Install::Base;
 use base 'Module::Install::Base';
-our $VERSION = '0.34_04';
+our $VERSION = '0.37';
 
 use FindBin;
 use File::Glob     ();
@@ -18,7 +18,8 @@ my @DIRS = qw(etc lib html static bin sbin po var);
 my @INDEX_DIRS = qw(lib bin sbin);
 
 sub RTx {
-    my ( $self, $name ) = @_;
+    my ( $self, $name, $extra_args ) = @_;
+    $extra_args ||= {};
 
     # Set up names
     my $fname = $name;
@@ -30,12 +31,23 @@ sub RTx {
         unless $self->version;
     $self->abstract("$name Extension")
         unless $self->abstract;
-    $self->readme_from( "lib/$fname.pm",
-                        { options => [ quotes => "none" ] } );
+    unless ( $extra_args->{no_readme_generation} ) {
+        $self->readme_from( "lib/$fname.pm",
+                            { options => [ quotes => "none" ] } );
+    }
     $self->add_metadata("x_module_install_rtx_version", $VERSION );
 
+    my $installdirs = $ENV{INSTALLDIRS};
+    for ( @ARGV ) {
+        if ( /INSTALLDIRS=(.*)/ ) {
+            $installdirs = $1;
+        }
+    }
+
     # Try to find RT.pm
-    my @prefixes = qw( /opt /usr/local /home /usr /sw );
+    my @prefixes = qw( /opt /usr/local /home /usr /sw /usr/share/request-tracker4);
+    $ENV{RTHOME} =~ s{/RT\.pm$}{} if defined $ENV{RTHOME};
+    $ENV{RTHOME} =~ s{/lib/?$}{}  if defined $ENV{RTHOME};
     my @try = $ENV{RTHOME} ? ($ENV{RTHOME}, "$ENV{RTHOME}/lib") : ();
     while (1) {
         my @look = @INC;
@@ -46,9 +58,10 @@ sub RTx {
 
         warn
             "Cannot find the location of RT.pm that defines \$RT::LocalPath in: @look\n";
-        $_ = $self->prompt("Path to directory containing your RT.pm:") or exit;
-        $_ =~ s{(/lib)?/RT\.pm$}{};
-        @try = ("$_/rt4/lib", "$_/lib/rt4", "$_/lib");
+        my $given = $self->prompt("Path to directory containing your RT.pm:") or exit;
+        $given =~ s{/RT\.pm$}{};
+        $given =~ s{/lib/?$}{};
+        @try = ($given, "$given/lib");
     }
 
     print "Using RT configuration from $INC{'RT.pm'}:\n";
@@ -59,11 +72,19 @@ sub RTx {
     unshift @INC, $lib_path;
 
     # Set a baseline minimum version
-    $self->requires_rt('4.0.0');
+    unless ( $extra_args->{deprecated_rt} ) {
+        $self->requires_rt('4.0.0');
+    }
 
     # Installation locations
     my %path;
-    $path{$_} = $RT::LocalPluginPath . "/$name/$_"
+    my $plugin_path;
+    if ( $installdirs && $installdirs eq 'vendor' ) {
+        $plugin_path = $RT::PluginPath;
+    } else {
+        $plugin_path = $RT::LocalPluginPath;
+    }
+    $path{$_} = $plugin_path . "/$name/$_"
         foreach @DIRS;
 
     # Copy RT 4.2.0 static files into NoAuth; insufficient for
@@ -77,7 +98,7 @@ sub RTx {
     my %index = map { $_ => 1 } @INDEX_DIRS;
     $self->no_index( directory => $_ ) foreach grep !$index{$_}, @DIRS;
 
-    my $args = join ', ', map "q($_)", map { ($_, $path{$_}) }
+    my $args = join ', ', map "q($_)", map { ($_, "\$(DESTDIR)$path{$_}") }
         sort keys %path;
 
     printf "%-10s => %s\n", $_, $path{$_} for sort keys %path;
@@ -123,6 +144,7 @@ install ::
     if ( $path{lib} ) {
         $self->makemaker_args( INSTALLSITELIB => $path{'lib'} );
         $self->makemaker_args( INSTALLARCHLIB => $path{'lib'} );
+        $self->makemaker_args( INSTALLVENDORLIB => $path{'lib'} )
     } else {
         $self->makemaker_args( PM => { "" => "" }, );
     }
@@ -130,6 +152,13 @@ install ::
     $self->makemaker_args( INSTALLSITEMAN1DIR => "$RT::LocalPath/man/man1" );
     $self->makemaker_args( INSTALLSITEMAN3DIR => "$RT::LocalPath/man/man3" );
     $self->makemaker_args( INSTALLSITEARCH => "$RT::LocalPath/man" );
+
+    # INSTALLDIRS=vendor should install manpages into /usr/share/man.
+    # That is the default path in most distributions. Need input from
+    # Redhat, Centos etc.
+    $self->makemaker_args( INSTALLVENDORMAN1DIR => "/usr/share/man/man1" );
+    $self->makemaker_args( INSTALLVENDORMAN3DIR => "/usr/share/man/man3" );
+    $self->makemaker_args( INSTALLVENDORARCH => "/usr/share/man" );
 
     if (%has_etc) {
         print "For first-time installation, type 'make initdb'.\n";
@@ -190,7 +219,7 @@ sub requires_rt_plugin {
     my ( $plugin ) = @_;
 
     if ($self->is_admin) {
-        my $plugins = $self->{values}{"x_requires_rt_plugins"} || [];
+        my $plugins = $self->Meta->{values}{"x_requires_rt_plugins"} || [];
         push @{$plugins}, $plugin;
         $self->add_metadata("x_requires_rt_plugins", $plugins);
     }
@@ -250,4 +279,4 @@ sub _load_rt_handle {
 
 __END__
 
-#line 369
+#line 428
