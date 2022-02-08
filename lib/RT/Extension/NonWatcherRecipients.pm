@@ -107,9 +107,11 @@ Returns: a message to insert in a template
 
 sub FindRecipients {
     my $self = shift;
-    my %args = @_;
+    my %args = ( Format => 'text/plain',
+                 @_ );
     my $Transaction = $args{Transaction};
     my $Ticket = $args{Ticket};
+    my $Format = $args{Format};
     my $recipients; # List of recipients
     my $message = ""; # Message for template
 
@@ -125,27 +127,39 @@ sub FindRecipients {
     my %addr = %{ $att->Addresses };
     my $creator = $Transaction->CreatorObj->RealName || '';
 
+    my $newline = "\n";
+    if ( $Format eq 'text/html' ) {
+        $newline = "<br/>\n";
+    }
+
     # Show any extra recipients
     for my $hdr (qw(From To Cc RT-Send-Cc RT-Send-Bcc)) {
         my @new = grep { not $self->IsWatcher($_->address, $Ticket) } @{$addr{$hdr} || []};
-        $recipients .= "   $hdr: " . $self->Format(\@new) . "\n"
+        $recipients .= "   $hdr: " . $self->Format(\@new) . $newline
             if @new;
     }
-
     if ($recipients) {
-        $message = "The following people received a copy of this email "
-                 . "but are not on the ticket. You may want to add them "
-                 . "before replying: ${RT::WebURL}Ticket/ModifyPeople.html?id="
-                 . $Ticket->id . "\n\n$recipients";
+        my $href = "${RT::WebURL}Ticket/ModifyPeople.html?id=" . $Ticket->id;
+        if ( $Format eq 'text/html' ) {
+            $message = "The following people received a copy of this email "
+                     . "but are not on the ticket. You may want to "
+                     . '<a href="' . $href . '">add them</a> before replying.'
+                     . "$newline$newline$recipients";
+        }
+        else {
+            $message = "The following people received a copy of this email "
+                     . "but are not on the ticket. You may want to add them "
+                     . "before replying: $href$newline$newline$recipients";
+        }
     }
 
     # Show From if there's a different phrase; this catches name changes and "via RT"
     my @from = grep { ($_->phrase||'') ne $creator } @{$addr{From} || []};
-    $message = "   From: " . $self->Format(\@from) . ($message ? "\n\n$message" : "\n")
+    $message = "   From: " . $self->Format(\@from) . ($message ? "$newline$newline$message" : $newline)
         if @from;
 
     if ($message) {
-        my $sep  = "-" x 72;
+        my $sep  = $Format eq 'text/html' ? '<hr />' : "-" x 72;
         $message = "$sep\n$message$sep\n";
     }
 
