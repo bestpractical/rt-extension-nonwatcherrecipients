@@ -33,6 +33,8 @@ so you know someone may need to be added:
 If you want the person to see correspondence, you can click the link and add
 them. If not, you can just ignore the message.
 
+You can choose between a text message or html formatted message.
+
 =head1 INSTALLATION
 
 =over
@@ -73,18 +75,24 @@ or add C<RT::Extension::NonWatcherRecipients> to your existing C<@Plugins> line.
 
 =head1 USAGE
 
-If you run the C<make initdb> step, a new global template called
-C<NonWatcherRecipients Admin Correspondence> is installed on your system.
-You can then select this template for any scrips that use the
-standard C<Admin Correspondence> template. We recommend the
-C<Admin Correspondence> template because you'll need RT privileges
-to add the user to the ticket.
+If you run the C<make initdb> step, two new global templates called
+C<NonWatcherRecipients Admin Correspondence> and
+C<NonWatcherRecipients Admin Correspondence in HTML> are installed on your
+system. You can then select one of these templates for any scrips that use the
+standard C<Admin Correspondence> or C<Admin Correspondence in HTML> templates.
+We recommend the C<Admin Correspondence> templates because you'll need RT
+privileges to add the user to the ticket.
 
-You can also add this to existing templates by adding the following
-to any template:
+You can also add these to existing templates by adding the following
+to any template for the plain text version:
 
     { RT::Extension::NonWatcherRecipients->FindRecipients(
         Transaction => $Transaction, Ticket => $Ticket ) }
+
+or adding the following for the html version:
+
+    { RT::Extension::NonWatcherRecipients->FindRecipients(
+        Transaction => $Transaction, Ticket => $Ticket, Format => 'text/html' ) }
 
 As described below, this method returns a message which is then inserted into
 your template.  Look at the installed template for an example.  You may also
@@ -98,8 +106,13 @@ Search headers for recipients not included as watchers on the ticket
 and return a message to insert in the outgoing email to notify
 participants.
 
-Takes: (Transaction => $Transaction, Ticket => $Ticket)
-These are the objects provided in the RT template.
+Takes:
+
+    (Transaction => $Transaction, Ticket => $Ticket, Format => 'text/html')
+
+Transaction and Ticket are the objects provided in the RT template.
+Format is an optional parameter that accepts either 'text/plain' or 'text/html'
+and defaults to 'text/plain' if not specified.
 
 Returns: a message to insert in a template
 
