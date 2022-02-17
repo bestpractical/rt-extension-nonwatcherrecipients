@@ -2,7 +2,7 @@ use strict;
 use warnings;
 package RT::Extension::NonWatcherRecipients;
 
-our $VERSION = '1.02';
+our $VERSION = '1.03';
 
 =head1 NAME
 
@@ -218,7 +218,7 @@ or via the web at
 
 =head1 LICENSE AND COPYRIGHT
 
-This software is Copyright (c) 2013-2020 by Best Practical Solutions, LLC
+This software is Copyright (c) 2013-2022 by Best Practical Solutions, LLC
 
 This is free software, licensed under:
 
